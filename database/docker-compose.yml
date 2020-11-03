@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: roster
+      POSTGRES_PASSWORD: password 
+    volumes: 
+      - type: bind
+        source: ./init
+        target: /docker-entrypoint-initdb.d
+    ports:
+      - target: 5432
+        published: 5432
+        protocol: tcp
+        mode: host
