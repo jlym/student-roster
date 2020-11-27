@@ -49,3 +49,23 @@ impl DB {
         Ok(student)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn add_student_works() -> Result<(), Error> {
+        let db = new_test_db().await?;
+        let student = db.add_student("Fred", 5).await?;
+
+        assert_eq!(student.name, "Fred");
+        assert_eq!(student.grade, 5);
+        assert!(student.id > 0);
+        Ok(())
+    }
+
+    async fn new_test_db() -> Result<DB, Error> {
+        DB::new("localhost", "roster", "postgres", "password").await
+    }
+}
