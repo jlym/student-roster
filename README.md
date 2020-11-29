@@ -9,6 +9,9 @@
   * We have to carefully pick versions of libraries so they all use the same version
     of a runtime that they support.
 
+  Actix-web 3 depends on 0.2
+  warp depends on tokio 0.2
+
 ## Errors
 
   * Use [anyhow](https://docs.rs/anyhow/1.0.34/anyhow/) to propogate errors in applications
