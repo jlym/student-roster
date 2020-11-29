@@ -4,14 +4,21 @@ use actix_web::{get, web, App, HttpServer};
 use db::DB;
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    let db = DB::new("localhost", "roster", "postgres", "password")
-        .await
-        .unwrap();
+async fn main() {
+    let result = run().await;
+    if let Err(e) = result {
+        eprintln!("{}", e);
+        std::process::exit(1);
+    }
+}
+
+async fn run() -> anyhow::Result<()> {
+    let db = DB::new("localhost", "roster", "postgres", "password").await?;
     HttpServer::new(move || App::new().data(db.clone()).service(index))
         .bind("127.0.0.1:8080")?
         .run()
-        .await
+        .await?;
+    Ok(())
 }
 
 #[get("/")]

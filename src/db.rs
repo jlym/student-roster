@@ -1,6 +1,6 @@
 use deadpool_postgres::config::Config;
 use deadpool_postgres::Pool;
-use tokio_postgres::{Error, NoTls};
+use tokio_postgres::NoTls;
 
 #[derive(Clone)]
 pub struct DB {
@@ -14,21 +14,21 @@ pub struct Student {
 }
 
 impl DB {
-    pub async fn new(host: &str, dbname: &str, user: &str, password: &str) -> Result<Self, Error> {
+    pub async fn new(host: &str, dbname: &str, user: &str, password: &str) -> anyhow::Result<Self> {
         let mut config = Config::new();
         config.host = Some(String::from(host));
         config.dbname = Some(String::from(dbname));
         config.user = Some(String::from(user));
         config.password = Some(String::from(password));
 
-        let pool = config.create_pool(NoTls).unwrap();
+        let pool = config.create_pool(NoTls)?;
 
         let db = Self { pool };
         Ok(db)
     }
 
-    pub async fn add_student(&self, name: &str, grade: i32) -> Result<Student, Error> {
-        let client = self.pool.get().await.unwrap();
+    pub async fn add_student(&self, name: &str, grade: i32) -> anyhow::Result<Student> {
+        let client = self.pool.get().await?;
         let rows = client
             .query(
                 "INSERT INTO students (name, grade)
@@ -52,7 +52,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn add_student_works() -> Result<(), Error> {
+    async fn add_student_works() -> anyhow::Result<()> {
         let db = new_test_db().await?;
         let student = db.add_student("Fred", 5).await?;
 
@@ -62,7 +62,7 @@ mod tests {
         Ok(())
     }
 
-    async fn new_test_db() -> Result<DB, Error> {
+    async fn new_test_db() -> anyhow::Result<DB> {
         DB::new("localhost", "roster", "postgres", "password").await
     }
 }
